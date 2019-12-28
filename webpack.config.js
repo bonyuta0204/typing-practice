@@ -1,4 +1,5 @@
 const path = require('path');
+const StyleLintPlugin = require('stylelint-webpack-plugin')
 
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
@@ -44,5 +45,7 @@ module.exports = {
       vue$: 'vue/dist/vue.esm.js',
     },
   },
-  plugins: [new VueLoaderPlugin()],
+  plugins: [new VueLoaderPlugin(), new StyleLintPlugin({
+    files: ['src/**/*.{vue,css,scss}'],
+  })],
 };
