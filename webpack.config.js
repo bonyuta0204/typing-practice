@@ -1,6 +1,6 @@
 const path = require('path');
 
-// const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   // エントリポイントのファイル
@@ -27,8 +27,12 @@ module.exports = {
         loader: 'babel-loader',
       },
       {
-        test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader'], // css-loader -> vue-style-loaderの順で通していく
+        test: /\.pug$/,
+        loader: 'pug-plain-loader',
+      },
+      {
+        test: /\.scss$/,
+        use: ['vue-style-loader', 'css-loader', 'sass-loader'], // css-loader -> vue-style-loaderの順で通していく
       },
     ],
   },
@@ -40,4 +44,5 @@ module.exports = {
       vue$: 'vue/dist/vue.esm.js',
     },
   },
+  plugins: [new VueLoaderPlugin()],
 };
