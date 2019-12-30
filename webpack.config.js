@@ -1,17 +1,17 @@
 const path = require('path');
-const StyleLintPlugin = require('stylelint-webpack-plugin')
+const StyleLintPlugin = require('stylelint-webpack-plugin');
 
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   // エントリポイントのファイル
-  entry: './src/index.js',
+  entry: { main: './src/index.js', style: './scss/style.scss' },
   mode: 'development',
   output: {
     // 出力先のディレクトリ
     path: path.join(__dirname, './dest'),
     // 出力ファイル名
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
   },
   devServer: {
     // webpackの扱わないファイル(HTMLや画像など)が入っているディレクトリ
@@ -45,7 +45,10 @@ module.exports = {
       vue$: 'vue/dist/vue.esm.js',
     },
   },
-  plugins: [new VueLoaderPlugin(), new StyleLintPlugin({
-    files: ['src/**/*.{vue,css,scss}'],
-  })],
+  plugins: [
+    new VueLoaderPlugin(),
+    new StyleLintPlugin({
+      files: ['src/**/*.{vue,css,scss}'],
+    }),
+  ],
 };

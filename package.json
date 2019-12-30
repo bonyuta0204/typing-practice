@@ -18,6 +18,8 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-vue": "^6.1.1",
+    "jsdoc": "^3.6.3",
+    "jsdoc-vuejs": "^3.0.7",
     "node-sass": "^4.13.0",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.0.0",
@@ -34,6 +36,7 @@
     "webpack-dev-server": "^3.10.1"
   },
   "dependencies": {
+    "bulma": "^0.8.0",
     "vue": "^2.6.11"
   }
 }

@@ -1,7 +1,8 @@
 <template lang="pug">
 div#app
-  p hogehoge fugafuga
-  h1 hogehoge
+  nav.navbar.is-primary
+    div.navbar-brand
+      h1.title.has-text-white Typing Game
   TypingGame
 </template>
 
