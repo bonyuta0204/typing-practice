@@ -5891,7 +5891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^2.1.2, json5@npm:^2.2.1":
+"json5@npm:^2.1.2, json5@npm:^2.2.1, json5@npm:^2.2.2":
   version: 2.2.3
   resolution: "json5@npm:2.2.3"
   bin:
@@ -9386,6 +9386,7 @@ __metadata:
     eslint-plugin-vue: ^9.8.0
     jsdoc: ^3.6.11
     jsdoc-vuejs: ^3.0.9
+    json5: ^2.2.2
     node-sass: ^8.0.0
     pug: ^3.0.2
     pug-plain-loader: ^1.1.0
