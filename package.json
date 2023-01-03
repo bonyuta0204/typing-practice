@@ -20,7 +20,7 @@
     "eslint-plugin-vue": "^6.1.1",
     "jsdoc": "^3.6.3",
     "jsdoc-vuejs": "^3.0.7",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.1.2",
