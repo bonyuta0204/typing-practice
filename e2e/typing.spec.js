@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test';
+
+test('typing, mistakes, newlines, retry, customization and persistent results', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Typing Game' })).toBeVisible();
+  await page.getByRole('button', { name: 'customize', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Typing sentence' }).fill('ab\nc');
+  await page.locator('#customize-modal').getByRole('button', { name: 'Save', exact: true }).click();
+  await page.getByRole('button', { name: 'start', exact: true }).click();
+  await page.keyboard.type('xab');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('c');
+  await expect(page.getByText('Your Result', { exact: true })).toBeVisible();
+  await expect(page.locator('#result-info')).toContainText('Accuracy: 80.0');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('typingGameResults')).length)).toBe(1);
+  await page.getByRole('button', { name: 'Retry', exact: true }).click();
+  await expect(page.locator('#typed-letters')).toHaveText('');
+  await page.getByRole('button', { name: 'customize', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Typing sentence' }).fill('discarded');
+  await page.getByRole('button', { name: 'Close customize' }).click();
+  await page.getByRole('button', { name: 'start', exact: true }).click();
+  await page.keyboard.type('ab');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('c');
+  await expect(page.getByText('Your Result', { exact: true })).toBeVisible();
+  await expect(page.locator('#result-info')).toContainText('Accuracy: 100.0');
+  await page.getByRole('button', { name: 'Close result' }).click();
+  await page.reload();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('typingGameResults')).length)).toBe(2);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'customize', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});

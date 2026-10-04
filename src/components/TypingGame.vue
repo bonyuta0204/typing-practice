@@ -1,52 +1,51 @@
-<template lang="pug">
-div.columns.page
-  div#typing-game.column.is-8.is-offset-2
-    button(@click="startGame" tabindex=-1).button.is-info.is-size-4 start
-    button(@click="showCustomizeModal=true" tabindex=-1).button.is-info.is-size-4 customize
-    button(@click="saveGameResult" tabindex=-1).button.is-info.is-size-4 save
+<template>
+  <div class="columns page">
+    <div id="typing-game" class="column is-8 is-offset-2">
+      <button class="button is-info is-size-4" tabindex="-1" @click="startGame">start</button>
+      <button class="button is-info is-size-4" tabindex="-1" @click="openCustomizeModal">customize</button>
+      <button class="button is-info is-size-4" tabindex="-1" @click="saveGameResult">save</button>
 
-    div#typing-area
-      pre#typed-letters {{ typedLetter }}
-      pre#next-letter {{ nextLetterDisplay }}
-      pre#not-typed-letters {{ notTypedLetters }}
-    p {{ (elapsedTime/1000).toFixed(1) }}
-    p {{ missTypes }}
-    div.modal#customize-modal(v-bind:class="{'is-active': showCustomizeModal}")
-      div.modal-background(@click="hideCustomizeModal")
-      div#customize-box.modal-content.box
-        section
-          p.title.has-text-centered Customize Typing sentence
-        section
-          div.field
-            div.control
-              textarea.textarea.is-primary(v-model="settingSentence")
-        section.level.card-footer
-          div.level-item
-            button.button.is-primary(@click="saveTypingSentence") Save
-      button.modal-close.is-large(@click="hideCustomizeModal")
-    button.modal-close.is-large
-    div.modal#result-modal(v-bind:class="{'is-active': showResultModal}")
-      div.modal-background(@click="hideResultModal")
-      div#result-box.modal-content.box
-        section
-          p.title.has-text-centered Your Result
-        section#result-info
-          p.stats Time:
-          p.value {{ (elapsedTime/1000).toFixed(1) }} sec
-          p
-          | WPM: {{ wpm.toFixed(1) }}</br>
-          | Keys per second: {{ keyPerSecond.toFixed(1) }} keys/s</br>
-          | Miss Typed Keys: {{ missTypes }} keys</br>
-          | Accuracy: {{ accuracy.toFixed(1) }} %</br>
-        section.level.card-footer
-          div.level-item
-            button.button.is-primary(@click="startGame") Retry
-      button.modal-close.is-large(@click="hideResultModal")
-    button.modal-close.is-large
+      <div id="typing-area"><pre id="typed-letters">{{ typedLetter }}</pre><pre id="next-letter">{{ nextLetterDisplay }}</pre><pre id="not-typed-letters">{{ notTypedLetters }}</pre></div>
+      <p>{{ (elapsedTime / 1000).toFixed(1) }}</p>
+      <p>{{ missTypes }}</p>
+      <div id="customize-modal" class="modal" :class="{ 'is-active': showCustomizeModal }">
+        <div class="modal-background" @click="hideCustomizeModal" />
+        <div id="customize-box" class="modal-content box">
+          <section><p class="title has-text-centered">Customize Typing sentence</p></section>
+          <section>
+            <div class="field"><div class="control">
+              <textarea v-model="settingSentence" class="textarea is-primary" aria-label="Typing sentence" />
+            </div></div>
+          </section>
+          <section class="level card-footer"><div class="level-item">
+            <button class="button is-primary" :disabled="!settingSentence.length" @click="saveTypingSentence">Save</button>
+          </div></section>
+        </div>
+        <button class="modal-close is-large" aria-label="Close customize" @click="hideCustomizeModal" />
+      </div>
+      <div id="result-modal" class="modal" :class="{ 'is-active': showResultModal }">
+        <div class="modal-background" @click="hideResultModal" />
+        <div id="result-box" class="modal-content box">
+          <section><p class="title has-text-centered">Your Result</p></section>
+          <section id="result-info">
+            <p>Time: {{ (elapsedTime / 1000).toFixed(1) }} sec</p>
+            <p>WPM: {{ wpm.toFixed(1) }}</p>
+            <p>Keys per second: {{ keyPerSecond.toFixed(1) }} keys/s</p>
+            <p>Miss Typed Keys: {{ missTypes }} keys</p>
+            <p>Accuracy: {{ accuracy.toFixed(1) }} %</p>
+          </section>
+          <section class="level card-footer"><div class="level-item">
+            <button class="button is-primary" @click="startGame">Retry</button>
+          </div></section>
+        </div>
+        <button class="modal-close is-large" aria-label="Close result" @click="hideResultModal" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { saveObject, loadObject } from '../../lib/LocalStorageUtils';
+import { saveObject, loadObject } from '../../lib/LocalStorageUtils.js';
 
 export default {
   data() {
@@ -56,6 +55,7 @@ export default {
       charCount: 0,
       startTime: 0,
       elapsedTime: 0,
+      timerId: null,
       isRunning: false,
       showResultModal: false,
       showCustomizeModal: false,
@@ -64,230 +64,112 @@ export default {
     };
   },
   computed: {
-    typedLetter() {
-      return this.sentence.slice(0, this.charCount);
-    },
-    nextLetter() {
-      return this.sentence[this.charCount];
-    },
-    nextLetterDisplay() {
-      const nextLetter = this.sentence[this.charCount];
-      if (nextLetter === '\n') {
-        return '⏎\n';
-      }
-      return nextLetter;
-    },
-    notTypedLetters() {
-      return this.sentence.slice(this.charCount + 1, this.charCount.length);
-    },
-    missTypes() {
-      return this.keyPressLogs.filter((x) => !x.isCorrect).length;
-    },
-    keyPerSecond() {
-      return (this.typedLetter.length / this.elapsedTime) * 1000;
-    },
-    wpm() {
-      // 1 word is calculated as 5 charcters in wpm
-      return (this.typedLetter.length * 60) / ((this.elapsedTime / 1000) * 5);
-    },
-    accuracy() {
-      return (((this.typedLetter.length - this.missTypes) / this.typedLetter.length) * 100);
-    },
+    typedLetter() { return this.sentence.slice(0, this.charCount); },
+    nextLetter() { return this.sentence[this.charCount]; },
+    nextLetterDisplay() { return this.nextLetter === '\n' ? '⏎\n' : this.nextLetter; },
+    notTypedLetters() { return this.sentence.slice(this.charCount + 1); },
+    missTypes() { return this.keyPressLogs.filter((entry) => !entry.isCorrect).length; },
+    keyPerSecond() { return this.elapsedTime > 0 ? this.charCount / this.elapsedTime * 1000 : 0; },
+    wpm() { return this.keyPerSecond * 60 / 5; },
+    accuracy() { return this.keyPressLogs.length ? this.charCount / this.keyPressLogs.length * 100 : 0; },
   },
-  mounted() {
-    window.addEventListener('keydown', this.keydown, false);
+  mounted() { window.addEventListener('keydown', this.keydown); },
+  beforeUnmount() {
+    window.removeEventListener('keydown', this.keydown);
+    this.stopTimer();
   },
   methods: {
-    /**
-     * ゲーム中にキーボードが押された時の処理を行う
-    */
-    keydown(e) {
-      const ignoreKeys = ['Shift', 'Tab'];
-      let targetKey = this.nextLetter;
-      if (targetKey === '\n') {
-        targetKey = 'Enter';
-      }
-
-      let typedKey = e.key;
-      let isCorrect = false;
-
-      if (!this.isRunning) { return; }
-
-      if (ignoreKeys.includes(typedKey)) { return; }
-
-      if (typedKey === targetKey) {
-        this.charCount += 1;
-        isCorrect = true;
-      }
-
-      if (this.charCount === this.sentence.length) {
-        this.endGame();
-      }
-
-      this.logKeyPress(targetKey = targetKey, typedKey = typedKey, isCorrect = isCorrect);
+    keydown(event) {
+      if (!this.isRunning || this.showCustomizeModal || event.isComposing) return;
+      if (event.metaKey || (event.ctrlKey && !event.getModifierState('AltGraph'))) return;
+      if (['Shift', 'Tab', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape'].includes(event.key)) return;
+      event.preventDefault();
+      const targetKey = this.nextLetter === '\n' ? 'Enter' : this.nextLetter;
+      const isCorrect = event.key === targetKey;
+      if (isCorrect) this.charCount += 1;
+      this.elapsedTime = Date.now() - this.startTime;
+      this.keyPressLogs.push({ targetKey, typedKey: event.key, isCorrect, elapsedTime: this.elapsedTime });
+      if (this.charCount === this.sentence.length) this.endGame();
     },
-    /**
-    * ゲーム中の経過時間測定を行う
-    */
+    stopTimer() {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    },
     updateTimer() {
-      setTimeout(() => {
-        if (!this.isRunning) { return; }
-        this.elapsedTime = new Date().getTime() - this.startTime;
+      this.timerId = setTimeout(() => {
+        if (!this.isRunning) return;
+        this.elapsedTime = Date.now() - this.startTime;
         this.updateTimer();
       }, 100);
     },
     startGame() {
+      this.stopTimer();
       this.hideResultModal();
-      this.isRunning = true;
+      this.hideCustomizeModal();
       this.charCount = 0;
-      this.startTime = new Date().getTime();
+      this.keyPressLogs = [];
+      this.lastResult = {};
+      this.startTime = Date.now();
       this.elapsedTime = 0;
-      this.updateTimer();
-      document.activeElement.blur();
+      this.isRunning = this.sentence.length > 0;
+      if (this.isRunning) this.updateTimer();
+      document.activeElement?.blur();
     },
     endGame() {
       this.isRunning = false;
+      this.stopTimer();
       this.showResultModal = true;
       this.lastResult = this.analyzeGameResult();
       this.saveGameResult();
     },
-    logKeyPress(targetKey, typedKey, isCorrect, elapsedTime, targetWord) {
-      this.keyPressLogs.push({
-        targetKey,
-        typedKey,
-        isCorrect,
-        elapsedTime,
-        targetWord,
-      });
-    },
-    /**
-     * ゲーム結果の分析を行い、分析結果を返す
-    @return {object} 分析結果が格納されたオブジェクト
-     */
     analyzeGameResult() {
-      const gameResult = {};
-
-      /**
-       * @type {object} 正しく打てなかったキーをキー毎に数えた統計
-      */
       const missTypeStats = {};
-
-      this.keyPressLogs.filter((x) => !x.isCorrect).forEach((logEntry) => {
-        const missedKey = logEntry.targetKey;
-        if (missedKey in missTypeStats) {
-          missTypeStats[missedKey] += 1;
-        } else {
-          missTypeStats[missedKey] = 1;
-        }
+      this.keyPressLogs.filter((entry) => !entry.isCorrect).forEach(({ targetKey }) => {
+        missTypeStats[targetKey] = (missTypeStats[targetKey] || 0) + 1;
       });
-      gameResult.missTypeStats = missTypeStats;
-      gameResult.keyPerSecond = this.keyPerSecond;
-      gameResult.wpm = this.wpm;
-      return gameResult;
+      return { missTypeStats, keyPerSecond: this.keyPerSecond, wpm: this.wpm };
     },
-    /**
-     * タイピングに使う文章の保存を行う
-     */
+    openCustomizeModal() {
+      this.isRunning = false;
+      this.stopTimer();
+      this.settingSentence = this.sentence;
+      this.showCustomizeModal = true;
+    },
     saveTypingSentence() {
+      if (!this.settingSentence.length) return;
       this.sentence = this.settingSentence;
+      this.charCount = 0;
+      this.keyPressLogs = [];
+      this.elapsedTime = 0;
       this.hideCustomizeModal();
     },
-    /**
-    * ゲームの結果をローカルストレージに保存
-    */
     saveGameResult() {
       const keyName = 'typingGameResults';
-      let gameHistories = loadObject(keyName);
-      const historyRecord = { ...this.analyzeGameResult() };
-      historyRecord.savedTime = new Date().getTime();
-      if (gameHistories === null) {
-        gameHistories = [];
-      }
-      gameHistories.push(historyRecord);
+      const stored = loadObject(keyName);
+      const gameHistories = Array.isArray(stored) ? stored : [];
+      gameHistories.push({ ...this.analyzeGameResult(), savedTime: Date.now() });
       saveObject(keyName, gameHistories);
     },
-    hideResultModal() {
-      this.showResultModal = false;
-    },
-    hideCustomizeModal() {
-      this.showCustomizeModal = false;
-    },
+    hideResultModal() { this.showResultModal = false; },
+    hideCustomizeModal() { this.showCustomizeModal = false; },
   },
 };
-
 </script>
 
-<style lang="scss">
-.page { height: 0.8vw; }
-
-.box {
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-content {
-  min-height: 50vh;
-}
-
-textarea {
-  padding: 40px;
-  margin: 1rem 0;
-}
-
-.textarea:not([rows]) {
-  min-height: 12em;
-}
-
-.card-footer {
-  bottom: 0;
-  margin-top: auto;
-}
-
-#result-info {
-  margin: auto 30;
-  line-height: 2.5rem;
-}
-
-.button {
-  margin: 20 10;
-}
-
-#result-box {
-  .stats {
-    display: inline;
-  }
-}
-
-#typing-game {
-  margin: 30 auto;
-  font-size: 1.5rem;
-
-  button {
-    user-select: none;
-  }
-
-  #typing-area {
-    pre {
-      background-color: transparent;
-      padding: 0;
-    }
-
-    #typed-letters {
-      color: black;
-      display: inline;
-    }
-
-    #next-letter {
-      color: red;
-      display: inline;
-      background-color: yellow;
-    }
-
-    #not-typed-letters {
-      color: gray;
-      display: inline;
-    }
-  }
-}
-
+<style>
+.page { min-height: 80vh; }
+.box { display: flex; flex-direction: column; }
+.modal-content { min-height: 50vh; }
+textarea { padding: 40px; margin: 1rem 0; }
+.textarea:not([rows]) { min-height: 12em; }
+.card-footer { bottom: 0; margin-top: auto; }
+#result-info { margin: auto 30px; line-height: 2.5rem; }
+.button { margin: 20px 10px; }
+#typing-game { margin: 30px auto; font-size: 1.5rem; }
+#typing-game button { user-select: none; }
+#typing-area { white-space: pre-wrap; overflow-wrap: anywhere; }
+#typing-area pre { background-color: transparent; padding: 0; display: inline; white-space: pre-wrap; }
+#typed-letters { color: black; }
+#next-letter { color: red; background-color: yellow !important; }
+#not-typed-letters { color: gray; }
 </style>
