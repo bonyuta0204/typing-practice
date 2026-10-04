@@ -1,26 +1,24 @@
-<template lang="pug">
-div#app
-  nav.navbar.is-primary
-    div.navbar-brand
-      h1.title.has-text-white Typing Game
-  TypingGame
+<template>
+  <div>
+    <nav class="navbar is-primary">
+      <div class="navbar-brand">
+        <h1 class="title has-text-white">Typing Game</h1>
+      </div>
+    </nav>
+    <TypingGame />
+  </div>
 </template>
 
 <script>
-
 import TypingGame from './components/TypingGame.vue';
 
 export default {
-  components: {
-    TypingGame,
-  },
+  components: { TypingGame },
 };
-
 </script>
 
-<style lang="scss">
+<style>
 #app {
   margin: 0 auto;
 }
-
 </style>
